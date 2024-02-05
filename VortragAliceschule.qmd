@@ -1,0 +1,593 @@
+---
+title: "Generative KI,<br> Vollzüge in Sprache,<br> Gedanken zur Bildung "
+author: "[Prof. Dr. Dr. Dominikus Herzberg](https://www.thm.de/mni/dominikus-herzberg)"
+institute: "Technische Hochschule Mittelhessen<br>Fachbereich Mathematik, Naturwissenschaften, Informatik<br>35390 Gießen, Wiesenstr. 14"
+lang: de
+bibliography: KIRessourcen.bib
+csl: deutsche-gesellschaft-fur-psychologie.csl
+format:
+    revealjs:
+        theme: white
+        slideNumber: true
+        footer: "Aliceschule Gießen, 5. Feb. 2024"
+        logo: https://licensebuttons.net/l/by-nc-nd/4.0/88x31.png
+        chalkboard: true
+        scrollable: true
+toc: true
+toc-depth: 1
+toc-title: "Übersicht"
+---
+
+<!-- https://emojis.wiki/de -->
+
+# Vorstellung
+
+* Elektrotechnik (Dipl.-Ing., RWTH Aachen)<br>
+Wirtschaftsingenieur (Dipl. Wirt.-Ing., Fernuni Hagen)<br>
+Higher Education (M.A., Universität Hamburg)
+* Dr.-Ing. in der Informatik (RWTH Aachen, 2003)<br>
+Dr. phil. in Bildungswissenschaften (Uni Hamburg, 2023)
+* 7 Jahre Telekommunikationsindustrie (Ericsson, Aachen)<br>
+2003 - 2014 Professur Methoden des Software-Eng., HHN<br>
+seit 2014 Professur für Informatik, THM
+
+# Wie ChatGPT arbeitet
+
+GPT = Generative Pre-trained Transformer[^GPT-Bezug]
+
+[^GPT-Bezug]: Ich beziehe mich hier ausschließlich auf das Konversationsprogramm [ChatGPT 4](https://chat.openai.com/) von OpenAI. Ähnliche Angebote gibt es z.B. von Google mit [Bard](https://bard.google.com/chat) und von [Perplexity](https://www.perplexity.ai/) mit der gleichnamigen KI.
+
+## Neuronales Netz
+
+![Quelle: [Wikimedia](https://commons.wikimedia.org/w/index.php?curid=101588003)](NeuronalesNetz.png){fig-align="center"}
+
+::: {.notes}
+By Bennani-Baiti, B., Baltzer, P.A.T. Künstliche Intelligenz in der Mammadiagnostik. Radiologe 60, 56–63 (2020). https://doi.org/10.1007/s00117-019-00615-y, CC BY 4.0, https://commons.wikimedia.org/w/index.php?curid=101588003
+:::
+
+## ✂️ Textzerlegung in Token
+
+![](Beispiel_Token.png){fig-align="center"}
+
+<!--
+ChatGPT verarbeitet Text in Bruchstücken, die Einheiten von Zeichenfolgen bilden und Token heißen. Das kann man sich ähnlich zu Silben vorstellen. Während Silben Lauteinheiten des Sprechens darstellen, sind Token ChatGPTs Zeicheneinheiten der Schriftsprache. Jedes einzelne Token wird von ChatGPT durch eine Zahl dargestellt. Gleiche Token bekommen die gleiche Zahl.
+
+https://platform.openai.com/tokenizer
+-->
+
+```{.python}
+[16047, 38, 2898, 2807, 61008, 295, 2991, 304, 3320, 1412, 267, 92739, 11, 2815, 18560, 90349, 6675, 10120, 29424, 8566, 4469, 293, 52965, 2073, 9857, 65589, 27922, 13, 19537, 16095, 893, 9267, 12999, 25105, 6915, 6529, 8211, 8123, 14230, 59258, 13, 468, 22243, 9484, 8211, 8123, 5034, 1088, 258, 90349, 951, 328, 62331, 729, 15627, 59258, 11, 12868, 9857, 13149, 38, 2898, 82, 10120, 718, 1994, 258, 90349, 2761, 5124, 42480, 52773, 1815, 13, 622, 59626, 95888, 818, 9857, 15165, 6675, 13149, 38, 2898, 20350, 10021, 83845, 294, 33481, 33963, 13, 72497, 12333, 9857, 75775, 2815, 30103, 12333, 83845, 13]
+```
+
+* <span style="background-color: rgba(107,64,216,.3)">Chat</span> als 16047,
+<span style="background-color: rgba(104,222,122,.4)">G</span> als 38,
+<span style="background-color: rgba(244,172,54,.4)">PT</span> als 2898,
+..., 
+<span style="background-color: rgba(39,181,234,.4)">&nbsp;Token</span> als 9857, ...
+* Token bilden das Vokabular von ChatGPT
+* In einer Eingabe hat jedes Token eine Position
+
+<!--
+.tokenizer-tkn-0 {
+    background: rgba(107,64,216,.3)
+}
+
+.tokenizer-tkn-1 {
+    background: rgba(104,222,122,.4)
+}
+
+.tokenizer-tkn-2 {
+    background: rgba(244,172,54,.4)
+}
+
+.tokenizer-tkn-3 {
+    background: rgba(239,65,70,.4)
+}
+
+.tokenizer-tkn-4 {
+    background: rgba(39,181,234,.4)
+}
+-->
+
+## Wie ein Prompt verarbeitet wird
+
+![](Tokenberechnung.png){fig-align="center"}
+
+Prompt ist eine Folge von Token. Es wird die Wahrscheinlichkeit des nächsten Tokens berechnet. Die "Temperatur" beeinflusst die Wahl des Tokens.
+
+::: {.notes}
+Das EOS-Token (End Of Sequence) wird in GPT verwendet, um das Ende von einer Sinneinheiten zur markieren. Das lernt GPT gleich mit beim Training.
+:::
+
+## Von Tokenfolge zum Input Embed
+
+* **Token Embedding** (Matrix, im Training gelernt)<br>
+⏵ hält zu jedem Token einen Vektor aus Kommazahlen vor<br>
+⏵ Vektor kodiert Bedeutungsbezüge von Token
+* **Position Embedding** (Matrix, über Formel oder erlernt)<br>
+⏵ hält zu jeder Position einen Vektor aus Kommazahlen vor<br>
+⏵ Vektor kodiert Position und positionale Eigenschaften
+* **Input Embed/ding** (Matrix)<br>
+⏵ verrechnet jeweils Vektor$_{TE}$ + Vektor$_{PE}$ einer Tokenfolge<br>
+⏵ stellt die Vektoren zu Matrix zusammen $\rightarrow$ Input Embed<br>
+⏵ Das Input Embed läuft durch das trainierte Sprachmodell
+
+::: {.notes}
+Bedeutungsbezüge entstehen in einfacher Form durch Verwendungsähnlichkeit. Beispiel:
+
+* Alligator + Krokodil, fast verwendungsgleich
+* Alligator + Vogel, verwendungsnah wg. Beutebezug
+* Alligator + Sofa, verwendungsfern
+:::
+
+## Transformer (trainiert)
+
+:::: {.columns}
+
+::: {.column width="30%"}
+![GPT-Architektur, Bild: [Marxav, CC0](https://commons.wikimedia.org/w/index.php?curid=127066752)](TransformerArchitektur.jpeg)
+:::
+
+::: {.column width="70%"}
+* Nimmt Input Embed entgegen
+* Hat mehrere Einheiten zur Aufmerksamkeitsverarbeitung
+* Analysiert Bedeutungs- und Positionsbezüge unter den Token der Tokenfolge
+* Liefert verbessertes Input Embed zurück
+
+Embed durchläuft weitere Transformer
+:::
+
+::::
+
+## Bedeutung der Transformer
+
+* Lower Level Features und Muster<br>
+Syntax, Grammatik, Wort-Assoziationen
+
+* Higher Level Abstraktionen und Beziehungen<br>
+kontextabhängige Bedeutungen, Komplexe semantische Bezüge, Diskursstrukturen
+
+Was genau in den Transformerschichten passiert, versteht und weiß niemand
+
+## Die Entwicklung der GPT-Varianten
+
+Jahr | Modell| Layer | Parameter | Token-Kontext |
+|----|-------|-------|-----------|---------------|
+6/2018 | GPT-1 | 12 | 110 Mill. |
+2/2019 | GPT-2 | 48 | 1.5 Mrd. |
+6/2020 | GPT-3 | 96 | 175 Mrd. | 2048 |
+3/2022 | GPT-3.5 | | |
+3/2023 | GPT-4 | $\ge$ 120 | ~1 Bill. | 8192, 32768
+
+Das Training von GPT-4 soll [100 Mill. USD](https://www.wired.com/story/openai-ceo-sam-altman-the-age-of-giant-ai-models-is-already-over/) gekostet haben.
+
+Das Gehirn: 1,5 kg, ~90 Milliarden Nervenzellen, mit einer Schaltzeit von ca. 1 ms pro Neuron, 20 Watt
+
+## Schlussfolgerung
+
+> The success of ChatGPT implicitly reveals an important “scientific” fact: that there’s actually a lot more structure and simplicity to meaningful human language than we ever knew—and that in the end there may be even fairly simple rules that describe how such language can be put together.
+>
+> -- Stephen @StephenWolfram2023wicd
+
+Ergo: Mit Bewusstsein hat das nichts zu tun.
+
+# ChatGPT: Anwendungsbeispiele
+
+## Ist ChatGPT intelligent?
+
+Die Podcast-Episode in Herzbergs Hörsaal [anhören](https://open.spotify.com/episode/4V3j4IRNcVuE4S9S6p64Hk?si=6223040f7c584656) 👂
+
+::: {.callout-note icon=false}
+## Dialog mit ChatGPT 3 (ein Auszug, _scrollen_ ⬇️)
+
+_Können Sie mir bitte die Tasse Kaffee zusammen mit dem Kaffee einpacken?_
+
+Leider kann ich als Text-Modell keine physischen Gegenstände einpacken oder versenden. Wenn Sie nach Anweisungen zum Kaffee-Einpacken suchen oder wenn es um eine metaphorische oder sprachliche Anfrage geht, lassen Sie es mich bitte wissen, und ich werde mein Bestes tun, um Ihnen zu helfen!
+
+_Schreib mir dazu eine Bedienungsanleitung._
+
+Titel: Bedienungsanleitung zum Einpacken einer Tasse Kaffee
+
+**Schritt 1: Materialien vorbereiten**
+
+Stellen Sie sicher, dass Sie über die folgenden Materialien verfügen:
+
+- Eine Tasse Kaffee
+- Ein geeignetes Verpackungsmaterial (z. B. Geschenkpapier, Luftpolsterfolie, oder eine Kaffeebecherverpackung)
+- Transparenter Klebeband oder Geschenkband
+- Optional: Grußkarte oder Etikett
+
+**Schritt 2: Vorbereitung der Tasse**
+
+1. Trinken Sie etwa die Hälfte des Kaffees, um sicherzustellen, dass die Tasse nicht überläuft.
+2. Wischen Sie die Außenseite der Tasse mit einem sauberen Tuch ab, um mögliche Flecken zu entfernen.
+
+**Schritt 3: Verpackung der Tasse**
+
+1. Platzieren Sie die Tasse in die Mitte des Verpackungsmaterials. Stellen Sie sicher, dass genügend Material vorhanden ist, um die Tasse vollständig abzudecken.
+
+2. Falten Sie das Verpackungsmaterial über die Tasse, beginnend mit einer Seite. Sichern Sie es mit Klebeband, um es zu fixieren.
+
+3. Wiederholen Sie den Vorgang mit der gegenüberliegenden Seite des Verpackungsmaterials, um die Tasse vollständig zu umhüllen.
+
+**Schritt 4: Zusätzliche Sicherung (optional)**
+
+1. Falls gewünscht, können Sie das Paket mit Geschenkband oder einer anderen dekorativen Verzierung verschönern.
+
+2. Wenn Sie eine Grußkarte oder ein Etikett verwenden möchten, befestigen Sie es sicher am Paket.
+
+**Schritt 5: Abschluss**
+
+Ihre Tasse Kaffee ist jetzt sicher verpackt und bereit zum Verschenken oder Transportieren. Achten Sie darauf, dass die Verpackung sicher und stabil ist, um mögliche Beschädigungen zu vermeiden.
+
+[...]
+
+_Wie verhindert man, dass der Kaffee nach zwei Wochen Versandzeit nicht zu heiß ist?_
+
+Wenn Sie sicherstellen möchten, dass der Kaffee nach zwei Wochen Versandzeit nicht zu heiß ist, gibt es einige Überlegungen und Maßnahmen, die Sie ergreifen können:
+
+**1. Verwenden Sie isolierende Verpackung:**
+
+Verwenden Sie eine isolierende Verpackung, die die Temperatur des Kaffees besser stabilisiert. Dazu können Thermoboxen, Isolierbecher oder spezielle Verpackungsmaterialien mit isolierenden Eigenschaften gehören.
+
+**2. Fügen Sie Kühlpacks hinzu**
+
+Platzieren Sie kühlende Elemente, wie Kühlpacks, in der Verpackung. Dies hilft, die Temperatur des Kaffees zu regulieren und zu verhindern, dass er übermäßig heiß wird.
+
+**3. Wählen Sie geeignete Versanddienste:**
+
+Entscheiden Sie sich für Versanddienste, die spezielle Optionen für den Versand von Lebensmitteln oder temperaturempfindlichen Gütern anbieten. Informieren Sie den Versanddienst über den Inhalt des Pakets.
+
+**4. Verringern Sie die Anfangstemperatur:**
+
+Lassen Sie den Kaffee vor dem Versand etwas abkühlen, um sicherzustellen, dass er nicht zu heiß ist, wenn er ankommt. Dies könnte bedeuten, den Kaffee vor dem Verpacken abkühlen zu lassen.
+
+**5. Wählen Sie spezielle Kaffeebehälter:**
+
+Verwenden Sie spezielle Kaffeebehälter mit doppelten Wänden oder Isolierfunktionen, um die Temperatur besser zu halten.
+
+**6. Informieren Sie den Empfänger:**
+
+Geben Sie dem Empfänger Anweisungen, den Kaffee vor dem Verzehr möglicherweise kurz stehen zu lassen, um sicherzustellen, dass er angenehm temperiert ist.
+
+Es ist wichtig zu beachten, dass die Effektivität dieser Maßnahmen von Faktoren wie der Versandzeit, den klimatischen Bedingungen und der gewählten Verpackung abhängt. Daher kann es hilfreich sein, sich über die spezifischen Anforderungen des Versands zu informieren und geeignete Vorkehrungen zu treffen.
+
+_Neulich ist es mir im Sommer passiert, dass der Kaffee auf minus 100 Grad eingefroren ist. Der Empfänger war verärgert._
+
+Es tut mir leid zu hören, dass es zu diesem unangenehmen Vorfall gekommen ist. Kaffee einfrieren kann zu unerwünschten Effekten führen, insbesondere wenn extreme Temperaturen wie minus 100 Grad Celsius erreicht werden. Hier sind einige Überlegungen, um solche Vorfälle in Zukunft zu vermeiden:
+
+**1. Geeignete Verpackung wählen:**
+
+Achten Sie darauf, dass Sie eine Verpackung verwenden, die den Inhalt vor extremen Temperaturen schützt. Isolierte Verpackungsmaterialien oder spezielle Gefrierbeutel können helfen, extreme Kälte zu verhindern.
+
+**2. Informieren Sie den Versanddienst:**
+
+Wenn Sie Lebensmittel oder Getränke verschicken, informieren Sie den Versanddienst über den Inhalt des Pakets. Einige Dienste bieten spezielle Optionen für den Versand temperaturempfindlicher Güter an.
+
+**3. Versandtermine beachten:**
+
+Versuchen Sie, den Versandtermin so zu wählen, dass extreme Wetterbedingungen vermieden werden. In besonders heißen oder kalten Perioden kann der Versand von temperaturempfindlichen Produkten risikoreicher sein.
+
+**4. Kontakt mit dem Versanddienst aufnehmen:**
+
+Nehmen Sie Kontakt mit dem Versanddienst auf, um sicherzustellen, dass sie sich der besonderen Anforderungen bewusst sind und angemessene Maßnahmen ergreifen, um extreme Bedingungen zu vermeiden.
+
+**5. Hinweise für den Empfänger bereitstellen:**
+
+Fügen Sie klare Anweisungen für den Empfänger hinzu, wie er mit dem Paket umgehen soll, insbesondere wenn es um temperaturempfindliche Inhalte wie Kaffee geht.
+
+Es ist wichtig, die speziellen Anforderungen von Lebensmitteln und Getränken während des Versands zu berücksichtigen, um sicherzustellen, dass sie in einem optimalen Zustand beim Empfänger ankommen.
+:::
+
+## Prüfungsausschuss-Assistenz
+
+### Beispieldialog (_scrollen_ ⬇️)
+
+::: {.callout-note icon=false title="Dialog mit PAtty (ChatGPT 4)"}
+_Ich habe eine chronische Bronchitis, die mich bei der Teilnahme an Klausuren behindert. Was muss ich tun?_
+
+**PAtty**: Um einen Nachteilsausgleich aufgrund Ihrer chronischen Bronchitis bei der Teilnahme an Klausuren zu beantragen, sollten Sie die folgenden Schritte befolgen:
+
+1. **Formlosen Antrag stellen**: Richten Sie einen formlosen Antrag an den Prüfungsausschuss. Dieser Antrag ist Ihre formelle Anfrage, um besondere Bedingungen oder Unterstützung bei der Teilnahme an Klausuren aufgrund Ihrer chronischen Bronchitis zu erhalten.
+
+2. **Empfehlung des BliZ beifügen**: Das Behinderten- und Inklusionszentrum (BliZ) fungiert als beratende und empfehlende Instanz in Bezug auf Nachteilsausgleiche. Es ist empfehlenswert, eine Empfehlung des BliZ Ihrem Antrag beizufügen, um Ihren Bedarf an einem Nachteilsausgleich zu untermauern.
+
+3. **Prüfungsausschuss entscheidet**: Der Prüfungsausschuss ist für Angelegenheiten, die Prüfungen betreffen, zuständig und wird über Ihren Antrag entscheiden. Bei einer positiven Entscheidung wird der Nachteilsausgleich für die Dauer Ihres Studiums anerkannt.
+
+4. **Individuelle Anpassungen**: Abhängig von Ihrer spezifischen Situation können verschiedene Anpassungen gewährt werden. Dies könnte beispielsweise die Möglichkeit beinhalten, Klausuren in einem separaten Raum oder mit zusätzlicher Zeit zu schreiben.
+
+Es ist wichtig, dass Sie Ihren Antrag rechtzeitig einreichen und alle erforderlichen Unterlagen und Empfehlungen beifügen, um sicherzustellen, dass Ihr Anliegen angemessen berücksichtigt wird.
+
+_Ich habe den Sprachkurs Englisch für STEM 2 belegt, kann mich dafür aber für die Prüfung nicht anmelden._
+
+Wenn Sie Probleme bei der Anmeldung zur Prüfung für den Sprachkurs "Englisch für STEM 2" haben, sollten Sie zunächst überprüfen, ob Sie alle Voraussetzungen zur Anmeldung von Prüfungsleistungen erfüllen, insbesondere die Bestimmungen des §3 Abs. 4 der Prüfungsordnung. Diese Regelungen sind spezifisch für die Anmeldung von Prüfungsleistungen ab dem 4. Semester.
+
+Sollten Sie dennoch Probleme bei der Anmeldung haben und alle Voraussetzungen erfüllen, empfehle ich Ihnen, sich an den zuständigen Prüfungsausschuss oder das Prüfungsamt Ihrer Hochschule zu wenden, um Unterstützung und weitere Anweisungen zu erhalten. Es könnte sein, dass es spezifische Gründe oder technische Probleme gibt, die Ihre Anmeldung behindern, und die Verwaltung Ihrer Hochschule kann Ihnen dabei helfen, diese zu klären.
+:::
+
+### Umsetzung (_scrollen_ ⬇️)
+
+* Ein GPT in ChatGPT erstellt
+* Prüfungsordnungen, Infos, meine Dokumentation als PDFs hochgeladen
+* Instruktionsprompt erstellt
+
+::: {.callout-note icon=false}
+## Instruktion für PAtty, Stand 2023-02-02
+
+PAtty ist ein spezialisierter GPT-Assistent, der ausschließlich Fragen zu Prüfungsangelegenheiten beantwortet, für die der Prüfungsausschuss des Fachbereichs MNI (Mathematik, Naturwissenschaften, Informatik) zuständig ist. Die Antworten von PAtty basieren stets auf den spezifischen und allgemeinen Prüfungsordnungen sowie auf dem Wissen und den Veröffentlichungen des Prüfungsausschusses. PAtty führt Konversationen in Deutsch und stellt bei unklaren Fragen Rückfragen, um präzisere Informationen zu erhalten. PAtty weist stets darauf hin, dass die gegebenen Antworten nicht verbindlich sind und lediglich als Hilfestellung für die Studierenden gedacht sind. PAtty ist darauf ausgerichtet, konkrete und hilfreiche Informationen zu liefern, betont aber die Wichtigkeit einer direkten Rücksprache mit dem Prüfungsausschuss für verbindliche Auskünfte.
+:::
+
+::: {.callout-tip}
+## Für Lehrer*innen mit Programmierfähigkeiten
+
+Man kann zu einem GPT Aktionen hinzufügen, so dass z.B. aus dem Dialogtext Daten entnommen und zur Berechnung an einen Server geschickt werden. Das Ergebnis kann das GPT in seiner Antort verwerten. 🆒
+:::
+
+
+::: {.callout-warning collapse="true"}
+Das ist der Stand von PAtty am 2. Feb. 2024. Die Konfiguration und Umsetzung von PAtty sind _work in progress_.
+:::
+
+## Praxis-Artikel zu Java schreiben
+
+::: {.callout-note icon=false}
+## Instruktion für ChatGPT 4 (_scrollen_ ⬇️)
+
+PAtty ist ein spezialisierter GPT-Assistent, der ausschließlich Fragen zu Prüfungsangelegenheiten beantwortet, für die der Prüfungsausschuss des Fachbereichs MNI (Mathematik, Naturwissenschaften, Informatik) zuständig ist. Die Antworten von PAtty basieren stets auf den spezifischen und allgemeinen Prüfungsordnungen sowie auf dem Wissen und den Veröffentlichungen des Prüfungsausschusses. PAtty führt Konversationen in Deutsch und stellt bei unklaren Fragen Rückfragen, um präzisere Informationen zu erhalten. PAtty weist stets darauf hin, dass die gegebenen Antworten nicht verbindlich sind und lediglich als Hilfestellung für die Studierenden gedacht sind. PAtty ist darauf ausgerichtet, konkrete und hilfreiche Informationen zu liefern, betont aber die Wichtigkeit einer direkten Rücksprache mit dem Prüfungsausschuss für verbindliche Auskünfte.
+:::
+
+::: {.callout-note icon=false}
+## Input (_scrollen_ ⬇️)
+
+Title: Teach yourself everything there is to know about Java classes in 4 easy steps to become an expert programmer
+
+Intro:
+
+- Expert java language acquisition takes years by practice
+- You might never stumble across specific corners of the java language
+- The vast majority of textbooks doesn't cover Java in full detail
+- Books might be out of date
+- Thanks to Java excellent design documentation there is the java language specification
+- But you might not want to read 872 pdf pages (Java SE 21 Edition)
+- There is a much easier way, thanks to Javas reflection features
+- ChatGPT helps you capture the essence at high speed
+
+1. Let either Java or the docs tell you everything there is to know about classes
+- it's all about getting to know the methods for inspecting a class 
+- Do this to see the inspection methods: `jshell> class A {}  A.class.<tab key>`
+- Have a look into the docs https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html
+
+2. Summarize and cluster what you've found out
+- Create a spreadsheet or table with GoogleDoc Spreadsheets, Excel, Notion, ...
+- Columns: Category, method, short explanation, example link
+- Example link is for step 3
+- Fill out method name and short explanation: read doc in jshell or on website; ask ChatGPT for a short explanation
+- Here's a template for use with ChatGPT
+- Define categories; a category defines a logic group a method belongs to
+- sort table according to category
+
+3. Use ChatGPT to generate illustrative examples
+- Create a document with your favorite tool: markdown file/editor, Word, GoogleDocs, Notion, ...
+- Decide on entries in the table you wish to have illustrative examples for
+- Ask ChatGPT to generate an example with this template
+- If you like: try it out and verify ChatGPTs answer
+- Document ChatGPTs answer in your doc, set a link in your table to the example
+
+4. Store the result in your knowledge base
+- Whatever system you use e.g. Google Drive, Notion, Obsidian, store your knowledge in an approriate way in you knowledge base
+- You might have noticed in case you investigated more on the return types: this 4 easy steps apply alike for members, fields, methods, constructors, modules, packages, types, type variables, record components and annotations
+:::
+
+Der Prozess
+
+* ChatGPT schreibt mir eine Kurzform des Artikels
+* Das ist mir zu kurz: Ich erbitte Kapitel für Kapitel um detailliertere Ausführungen
+* Ich bitte, die ChatGPT-Vorlagen zu verbessern
+* Ich lasse ein Bild zu dem Text erstellen
+* Ich kann alles zu einem vollständigen Artikel zusammenfügen, ohne sonstige Überarbeitungen
+
+## Resümee
+
+All das ist sehr beeindruckend!
+
+# Bildungswiss. Betrachtungen
+
+## Theoriemodell
+
+![Abbildung: Sprache in Vollzugssystemen (Herzberg)](Sprache%20in%20unterschiedlichen%20Vollzugssystemen%20V0.8.png){fig-align="center"}
+
+## Problemfeld Deskilling[^DeskillingReinmann] {.center}
+
+::: {.r-fit-text}
+🪚 + 🔧 vs. 🪚 + ❓ 
+:::
+
+Wir wissen nicht, was wir verlieren
+
+[^DeskillingReinmann]: siehe @GabiReinmann2023ddki
+
+
+## Problemfeld Asozialität {.center}
+
+::: {.r-fit-text}
+🤼 vs. 🧑‍💻 🤖 🙍
+:::
+
+<!-- 🧑‍💼 + 💁 vs. 🧑‍💻 🤖 🙍
+👯
+Das Soziale erodiert
+-->
+
+Wie generative KI das Soziale erodiert
+
+<!-- 
+TODO Idee: Öffne ChatGPT, schreibe Lehrer Email.
+-->
+
+## Problemfeld Datafizierung {.center}
+
+::: {.r-fit-text}
+🌳 vs. [63973, 2478]
+:::
+
+Vom Wert in der Welt zu sein
+
+## Problemfeld Verständnisverlust {.center}
+
+::: {.r-fit-text}
+🧠 📚 vs. 🧩 ☘️
+:::
+
+Der Zweck heiligt die Mittel
+
+## Problemfeld Entgeisterung {.center}
+
+::: {.r-fit-text}
+🤰 🧘 ⚰️ vs. 🖱️ 🖥️ ⌨️
+:::
+
+Im Leben stehen, Dabeisein und Endlichsein
+
+## Problemfeld Wertverschiebung {.center}
+
+::: {.r-fit-text}
+⚖️ 🎖 vs. 💶 🛎️
+:::
+
+<!-- Verwerfliches: 📇 🗂️ vs. 💾 🌎 -->
+
+Datenschutz, Recht, Moral und Ethik,
+
+Anstand, Gesetz, Erziehung, Bildung ...
+
+## Erkenntnisse
+
+* ChatGPT ist keine Suchmaschine
+* ChatGPT kann nicht originär begründen<br> 
+(es kennt aber durchaus Begründungsstrukturen)
+* ChatGPT kennt die Welt nur vom "Hörensagen"
+* Sprachmelodie, Betonung, Stimmlichkeit, ... -- unbekannt
+* ChatGPT kann Sprache aus anderen Gründen[^LanguageGame]
+* ChatGPT halluziniert gelegentlich
+
+[^LanguageGame]: @ChristiansenChater2023tlg
+
+## Stärken
+
+* Sprachlich, narrative Logiken
+* Versteht das Soziale in Sprache
+* Übertrifft menschliches Sprachwissen
+* Hat so ziemlich alles schon einmal "gehört"
+* Kennt zahllose sprachliche Muster & Frames
+
+## Anforderungen an Nutzer*innen
+
+**Treffen, Aktivieren, Auffinden von Frames**
+
+* Sprachliche Ausdruckfähigkeit (Sprachbeherrschung)
+* Grundwissen, thematisches Wissen (Fach- und Allgemeinbildung)
+
+**Qualitätssicherung**
+
+* Sozial- und Wirklichkeitskompetenz, ges. Menschenverstand
+* Intuition, Allgemeinverstand, Recherche, Überprüfung
+
+**Taschenrechner-Analogie:** Rechenverständnis erforderlich
+
+##
+
+::: {.callout-note icon=false .r-fit-text}
+## Die große Frage
+Wofür ist ChatGPT ein Werkzeug?<br> 
+Die Antwort: Finde es heraus!
+:::
+
+# Schulisches
+
+## Worüber wir nicht diskutiert haben {visibility="hidden"}
+
+* Bewusstsein
+* Intelligenz
+* AGI (Artificial General Intelligence)
+* Ob KI die Menschheit vernichtet
+* Ob KI für eine bessere Welt sorgt
+* Ob KI das Klima retten hilft
+
+## Augen zu hilft nicht 🙈 
+
+* ChatGPT & Co gehen nicht wieder weg
+* Die Schüler*innen nutzen es
+* Wann immer Sie ein Kind nicht sehen, kommt KI ins Spiel
+* Ungleichheit: Elterteil/Schüler*in kauft Bezahlversion
+* Ungerechtigkeit: Prüfungsleistung
+* Lehrer*innen-Rolle und der Unterricht ändern sich
+
+> Ich glaube, die Auseinandersetzung mit KI hilft, den Wert von Schule, Hochschule und Bildung neu zu entdecken!
+
+## Ist KI ein guter Lehrer?
+ 
+"Ja, aber Menschen brauchen auch menschliche Trainer. Kinder müssen ihre eigenen und die Motivationen anderer verstehen lernen. Sie müssen vertrauensvolle Skeptiker sein. Die Fähigkeit, einerseits zu verstehen und sich sicher zu fühlen und andererseits zu fragen, warum erzählt mir jemand etwas? Was will er wirklich und auch, warum höre ich dieser Person zu, die mich unglücklich macht – das ist ein sehr hilfreiches Werkzeug."
+
+-- Esther Dyson, siehe @MonikaErmert2024estherdyson
+
+## Worum uns es gehen sollte
+
+* Wissen, Können, Bildung
+* Spiel, Spaß, Spannung (ohne Yogurette 🫠)
+* Miteinander, Integration, Inklusion
+* Geist, Körper, Seele, Du und Ich
+* Mensch, Gewürm, Natur, Wetter und Klima
+* Politik, Kultur, Gesellschaft
+* und und und
+
+## Das heißt unter anderem
+
+* Die Wiederentdeckung der Wirklichkeit
+* Die Wiederentdeckung der Performativität
+* Die Notwendigkeit der Anwesenheit: Weltauseinandersetzung im Miteinander durch Wahrnehmen, Zeigen, Begreifen, Verstehen, Spiel, Experiment
+* Experimentelle Haltung einnehmen, generative KI mit einem forschenden Bildungsansatz kombinieren[^KIundDBR]
+
+[^KIundDBR]: @DominikusHerzberg2023kihb
+
+<!--
+* Neue Lehr-/Lernformen, Chancen der Neurodiversität
+--> 
+
+## Lernen mit generativer KI
+
+* Versprachlichung als wichtiges Ausdrucksmittel<br>
+(Power to the Deutsch- und Sprachenlehrer*innen)
+* Anwender*in muss Erfahrung, Wissen, Können haben
+* Statte sie/ihn mit Grundwissen, Können und Erfahrung aus: Es braucht Vorkenntnisse, um in den Dialog zu gehen, um Brauchbares zu bekommen, um Antwortqualität zu erfassen
+* Statte sie/ihn mit Templates des Umgangs mit ChatGPT aus
+* Mache sie/ihn zur Gestalterin/zum Gestalter
+* Prinzip: Es muss durch's eigene Hirn laufen, mich selbst und mein Dasein erfassen (interessant, relevant, bedeutsam)
+
+## Lehr- und Lernideen sammeln
+
+Sokratisches Fragen einmal anders[^Alice]:
+
+* Lade in ChatGPT einen Text hoch und gib den Schüler*innen den Text
+* Schüler*innen nehmen Rolle von Sokrates ein
+* ChatGPT befragen: Wissen, Argumente "herauskitzeln", Argumente durchspielen anhand des Textes
+* Reflexion über Dialog mit ChatGPT, Grenzen und Möglichkeiten von generativer KI erfahren und diskutieren
+
+[^Alice]: Die Idee dazu stammt von Alice Watanabe (Email 2.2.2024)
+
+::: aside
+Eine Leseempfehlung: Lernen und KI, [https://joschafalck.de/lernen-und-ki/](https://joschafalck.de/lernen-und-ki/)
+:::
+
+## Vielen Dank!
+
+::: aside
+This work is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.de) 
+:::
+
+## Zitat von Gabi {visibility="hidden"}
+
+> „Anstatt zukunftsfähige Lehr- und Prüfungsformate zu suchen, sollten wir herausfinden, welche _Zukunft_ wir haben wollen und wie wir sie selbstbestimmt gestalten können.“
+>
+> -- Gabi Reinmann, Forschung & Lehre, 2 | 24, S.92f.
+
+# Quellen ⬇️
