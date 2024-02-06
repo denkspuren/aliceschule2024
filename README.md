@@ -1,4 +1,6 @@
-# KI-Vortrag an Aliceschule in Gießen
+# Generative KI, Vollzüge in Sprache, Gedanken zur Bildung
+
+## Vortrag am 5. Feb. 2024 an der Aliceschule in Gießen
 
 Am 5. Feb. 2024 habe ich für einige Lehrer*innen an der Aliceschule in Gießen einen Vortrag zum Thema "Künstliche Intelligenz" gehalten.
 
@@ -9,3 +11,5 @@ Die hier hinterlegten Vortragsfolien kann man sich anschauen unter
 https://denkspuren.github.io/aliceschule2024/
 
 Den Vortrag habe ich am Vormittag gehalten. Am Nachmittag habe ich den Vortrag noch einmal gesprochen und aufgezeichnet, 92 Minuten. Das ist vielleicht zu lang geworden, vielleicht zu ausführlich, aber es ist ein Angebot an Interessierte -- aber vielleicht reichen auch die Folien.
+
+https://www.youtube.com/watch?v=MKGp2kkFlzs
