@@ -580,8 +580,10 @@ Eine Leseempfehlung: Lernen und KI, [https://joschafalck.de/lernen-und-ki/](http
 
 ## Vielen Dank!
 
+Hinweis: Den Vortrag, den ich an der Aliceschule gehalten habe, habe ich noch einmal eingesprochen und aufgezeichnet und als [YouTube-Video](https://www.youtube.com/watch?v=MKGp2kkFlzs) für Interessierte bereitgestellt. Das hilft sicher, die Folien besser zu verstehen.
+
 ::: aside
-This work is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.de) 
+Dieses Werk ist unter die Creative Commons Lizenz [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.de) gestellt. Der "Quellcode" zu den Folien ist im entsprechenden [Github-Repository](https://github.com/denkspuren/aliceschule2024) hinterlegt.
 :::
 
 ## Zitat von Gabi {visibility="hidden"}
